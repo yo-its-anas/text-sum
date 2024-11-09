@@ -1,18 +1,9 @@
 import streamlit as st
 from transformers import pipeline
 
-# Cache the Hugging Face pipelines to avoid reloading models every time
-@st.cache_resource
-def load_summarizer():
-    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
-
-@st.cache_resource
-def load_sentiment_analyzer():
-    return pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
-
-# Load models
-summarizer = load_summarizer()
-sentiment_analyzer = load_sentiment_analyzer()
+# Step 1: Initialize the Hugging Face pipelines with explicit models
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
 # Step 2: Define the summarization function
 def summarize_text_huggingface(text):
