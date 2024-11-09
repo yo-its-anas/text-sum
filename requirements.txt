@@ -1,5 +1,6 @@
-streamlit
-transformers>=4.0.0
-torch==2.0.0  # Ensure compatibility with the transformers pipeline
+streamlit==1.17.0
+transformers==4.34.0
+torch==2.1.0
+
 
 
