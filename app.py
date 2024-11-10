@@ -1,27 +1,30 @@
 import streamlit as st
+from transformers import pipeline
 import tensorflow as tf
 
-from transformers import pipeline
+# Set TensorFlow to use CPU only (avoiding CUDA/GPU errors)
+tf.config.set_visible_devices([], 'GPU')
 
-# Explicitly specify model name and revision (replace with desired model)
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="main")
-sentiment_analyzer = pipeline("sentiment-analysis")
+# Explicitly specify model names for both pipelines
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="main", device=-1)
+sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english", device=-1)
 
 def summarize_text(text):
-    """Summarizes the input text"""
+    """Summarizes the input text."""
     summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
     return summary[0]['summary_text']
 
 def analyze_sentiment(text):
-    """Analyzes the sentiment of the input text"""
+    """Analyzes the sentiment of the input text."""
     sentiment = sentiment_analyzer(text)
     return sentiment[0]['label']
 
 def main():
     st.title("Text Summarizer and Sentiment Analyzer")
 
+    # Accessibility improvement for the text area label
     with st.expander("Enter your text here"):
-        text_input = st.text_area("", height=200)
+        text_input = st.text_area("Text input", "", height=200, label_visibility="collapsed")
 
     if st.button("Analyze"):
         if text_input.strip():
@@ -39,3 +42,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+               
