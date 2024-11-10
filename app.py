@@ -1,21 +1,21 @@
 import streamlit as st
+import tensorflow as tf
+
 from transformers import pipeline
 
-try:
-  # Attempt to load the model
-  summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
-except RuntimeError as e:
-  # Handle model loading error
-  st.error(f"Error loading summarization model: {e}")
-  # Consider providing alternative options or disabling summarization functionality
+# Initialize models with smaller, faster options
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+sentiment_analyzer = pipeline("sentiment-analysis")
 
 def summarize_text(text):
-    """Summarizes the input text (if model loaded successfully)"""
-    if summarizer:  # Check if model is available
-        summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
-        return summary[0]['summary_text']
-    else:
-        return "Summarization unavailable: Please check model availability."  # Informative message
+    """Summarizes the input text"""
+    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
+    return summary[0]['summary_text']
+
+def analyze_sentiment(text):
+    """Analyzes the sentiment of the input text"""
+    sentiment = sentiment_analyzer(text)
+    return sentiment[0]['label']
 
 def main():
     st.title("Text Summarizer and Sentiment Analyzer")
@@ -39,4 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-          
