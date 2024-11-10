@@ -2,11 +2,11 @@ import streamlit as st
 from transformers import pipeline
 import tensorflow as tf
 
-# Set TensorFlow to use CPU only (avoiding CUDA/GPU errors)
+# Configure TensorFlow to use CPU only, avoiding any GPU-related errors
 tf.config.set_visible_devices([], 'GPU')
 
-# Explicitly specify model names for both pipelines
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="main", device=-1)
+# Load models with device set to CPU
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", device=-1)
 sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english", device=-1)
 
 def summarize_text(text):
@@ -22,7 +22,6 @@ def analyze_sentiment(text):
 def main():
     st.title("Text Summarizer and Sentiment Analyzer")
 
-    # Accessibility improvement for the text area label
     with st.expander("Enter your text here"):
         text_input = st.text_area("Text input", "", height=200, label_visibility="collapsed")
 
@@ -42,5 +41,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-               
