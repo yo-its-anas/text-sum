@@ -1,32 +1,39 @@
-# app.py
-
 import streamlit as st
 from transformers import pipeline
 
-# Set up the Streamlit app title and introduction text
-st.title("Text Summarization App")
-st.write("Enter some text below, and the app will summarize it!")
+# Initialize models with smaller, faster options
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+sentiment_analyzer = pipeline("sentiment-analysis")
 
-# Initialize the summarization pipeline
-@st.cache_resource  # Use caching to avoid reloading the model on each interaction
-def load_summarization_pipeline():
-    # Using a lightweight model for faster loading and summarization
-    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", device=-1)  # Use CPU
+def summarize_text(text):
+    """Summarizes the input text"""
+    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
+    return summary[0]['summary_text']
 
-# Load the model and pipeline for summarization
-summarizer = load_summarization_pipeline()
+def analyze_sentiment(text):
+    """Analyzes the sentiment of the input text"""
+    sentiment = sentiment_analyzer(text)
+    return sentiment[0]['label']
 
-# Create an input text area for users to enter text
-input_text = st.text_area("Input Text", "Enter the text you want to summarize here...")
+def main():
+    st.title("Text Summarizer and Sentiment Analyzer")
 
-# Add a button to start summarization
-if st.button("Summarize Text"):
-    # Check if input text is provided
-    if input_text.strip():
-        # Use the summarizer to generate a summary
-        with st.spinner("Summarizing..."):
-            summary = summarizer(input_text, max_length=130, min_length=30, do_sample=False)
+    with st.expander("Enter your text here"):
+        text_input = st.text_area("", height=200)
+
+    if st.button("Analyze"):
+        if text_input.strip():
+            with st.spinner("Processing..."):
+                summary = summarize_text(text_input)
+                sentiment = analyze_sentiment(text_input)
+
             st.subheader("Summary")
-            st.write(summary[0]['summary_text'])
-    else:
-        st.warning("Please enter some text to summarize.")
+            st.write(summary)
+
+            st.subheader("Sentiment Analysis")
+            st.write(f"Sentiment: {sentiment}")
+        else:
+            st.error("Please enter some text to analyze.")
+
+if __name__ == "__main__":
+    main()
