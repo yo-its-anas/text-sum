@@ -2,16 +2,16 @@
 
 import streamlit as st
 from transformers import pipeline
-import torch
 
 # Set up the Streamlit app title and introduction text
 st.title("Text Summarization App")
-st.write("Enter some text below, and the app will summarize it using a transformer model!")
+st.write("Enter some text below, and the app will summarize it!")
 
 # Initialize the summarization pipeline
 @st.cache_resource  # Use caching to avoid reloading the model on each interaction
 def load_summarization_pipeline():
-    return pipeline("summarization", model="facebook/bart-large-cnn", device=0 if torch.cuda.is_available() else -1)
+    # Using a lightweight model for faster loading and summarization
+    return pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", device=-1)  # Use CPU
 
 # Load the model and pipeline for summarization
 summarizer = load_summarization_pipeline()
