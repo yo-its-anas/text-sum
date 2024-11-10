@@ -3,8 +3,8 @@ import tensorflow as tf
 
 from transformers import pipeline
 
-# Initialize models with smaller, faster options
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+# Explicitly specify model name and revision (replace with desired model)
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", revision="main")
 sentiment_analyzer = pipeline("sentiment-analysis")
 
 def summarize_text(text):
