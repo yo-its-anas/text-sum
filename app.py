@@ -1,43 +1,32 @@
+# app.py
+
 import streamlit as st
 from transformers import pipeline
+import torch
 
-# Step 1: Initialize the Hugging Face pipelines with explicit models
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+# Set up the Streamlit app title and introduction text
+st.title("Text Summarization App")
+st.write("Enter some text below, and the app will summarize it using a transformer model!")
 
-# Step 2: Define the summarization function
-def summarize_text_huggingface(text):
-    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
-    return summary[0]['summary_text']
+# Initialize the summarization pipeline
+@st.cache_resource  # Use caching to avoid reloading the model on each interaction
+def load_summarization_pipeline():
+    return pipeline("summarization", model="facebook/bart-large-cnn", device=0 if torch.cuda.is_available() else -1)
 
-# Step 3: Define the sentiment analysis function
-def analyze_sentiment_huggingface(text):
-    sentiment = sentiment_analyzer(text)
-    return sentiment[0]['label']  # 'POSITIVE' or 'NEGATIVE'
+# Load the model and pipeline for summarization
+summarizer = load_summarization_pipeline()
 
-# Step 4: Streamlit App Layout
-st.title("Text Summarization and Sentiment Analysis App")
+# Create an input text area for users to enter text
+input_text = st.text_area("Input Text", "Enter the text you want to summarize here...")
 
-st.markdown("""
-    This app uses Hugging Face models to provide text summarization and sentiment analysis. 
-    You can input a paragraph of text to get a summary and sentiment analysis.
-""")
-
-# User input for text
-text_input = st.text_area("Enter the text you want to analyze:")
-
-# Process if user enters some text
-if text_input.strip():
-    st.subheader("Processing...")
-    
-    # Get summary
-    summary = summarize_text_huggingface(text_input)
-    st.subheader("Summary:")
-    st.write(summary)
-    
-    # Get sentiment
-    sentiment = analyze_sentiment_huggingface(text_input)
-    st.subheader("Sentiment Analysis:")
-    st.write(f"Sentiment: {sentiment}")
-else:
-    st.write("Please enter some text to analyze.")
+# Add a button to start summarization
+if st.button("Summarize Text"):
+    # Check if input text is provided
+    if input_text.strip():
+        # Use the summarizer to generate a summary
+        with st.spinner("Summarizing..."):
+            summary = summarizer(input_text, max_length=130, min_length=30, do_sample=False)
+            st.subheader("Summary")
+            st.write(summary[0]['summary_text'])
+    else:
+        st.warning("Please enter some text to summarize.")
